@@ -15,6 +15,25 @@ HF_DATASET_NAME = "Dutch-European-Parliament-Adopted-Texts"
 HF_REPO_ID = f"{HF_USERNAME}/{HF_DATASET_NAME}"
 
 
+def fix_term_number(url: str) -> str:
+    """Correct the parliamentary term number in a TOC URL based on its year."""
+    m = re.search(r"TA-(\d)-(\d{4})", url)
+    if not m:
+        return url
+    term = int(m.group(1))
+    year = int(m.group(2))
+    if 1999 <= year <= 2004 and term != 5:
+        return url.replace(f"TA-{term}-", "TA-5-")
+    if 2004 <= year <= 2009 and term != 6:
+        return url.replace(f"TA-{term}-", "TA-6-")
+    if 2009 <= year <= 2014 and term != 7:
+        return url.replace(f"TA-{term}-", "TA-7-")
+    if 2014 <= year <= 2019 and term != 8:
+        return url.replace(f"TA-{term}-", "TA-8-")
+    if year >= 2019 and term != 9:
+        return url.replace(f"TA-{term}-", "TA-9-")
+    return url
+
 
 def collect_text_urls(start_url: str):
     urls = []
@@ -25,6 +44,13 @@ def collect_text_urls(start_url: str):
     while current and current not in visited:
         visited.add(current)
         resp = session.get(current, timeout=20)
+        if resp.status_code == 404:
+            fixed = fix_term_number(current)
+            if fixed != current:
+                resp = session.get(fixed, timeout=20)
+                if resp.status_code == 404:
+                    break
+                current = fixed
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, "lxml")
         text_url = current.replace("-TOC", "")
