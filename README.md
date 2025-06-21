@@ -12,6 +12,10 @@ The scraper follows the "Volgende" links to navigate chronologically. For each p
 https://www.europarl.europa.eu/doceo/document/TA-5-1999-07-21_NL.html
 ```
 
+Some older pages occasionally link to a non-existent URL with an incorrect parliamentary
+term number (e.g. `TA-0-2002-11-29-TOC_NL.html`). The scraper automatically corrects the
+term based on the year so that scraping can continue.
+
 Scraped texts are uploaded to the Hugging Face dataset repository [`vGassen/Dutch-European-Parliament-Adopted-Texts`](https://huggingface.co/datasets/vGassen/Dutch-European-Parliament-Adopted-Texts).
 
 ## Usage
