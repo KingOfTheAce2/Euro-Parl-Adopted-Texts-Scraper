@@ -111,6 +111,10 @@ def extract_dutch_text_from_html(html_content: str) -> str | None:
 def fetch_text(url: str, session: requests.Session) -> str | None:
     resp = session.get(url, timeout=20)
     resp.raise_for_status()
+    # Some older pages incorrectly declare their charset as ISO-8859-1 while
+    # the HTML is actually UTF-8 encoded. Force UTF-8 decoding to avoid
+    # garbled characters appearing in the scraped text.
+    resp.encoding = resp.apparent_encoding or "utf-8"
     return extract_dutch_text_from_html(resp.text)
 
 
