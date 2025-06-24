@@ -103,9 +103,11 @@ def extract_dutch_text_from_html(html_content: str) -> str | None:
         p.get_text(" ", strip=True) for p in soup.find_all("p") if p.get_text(strip=True)
     ]
     final_text = clean_text("\n".join(paragraphs))
-    if final_text and len(final_text) > 50:
-        return final_text
-    return None
+    if not final_text or len(final_text) <= 50:
+        return None
+    if "deze tekst wordt nog verwerkt voor publicatie in uw taal" in final_text.lower():
+        return None
+    return final_text
 
 
 def fetch_text(url: str, session: requests.Session) -> str | None:
